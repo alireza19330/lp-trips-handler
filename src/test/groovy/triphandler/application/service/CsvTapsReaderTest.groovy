@@ -1,9 +1,10 @@
 package com.lp.triphandler.application.service
 
-
+import com.lp.triphandler.application.exception.TapDetailsFormatException
 import com.lp.triphandler.application.util.CsvReader
 import com.lp.triphandler.domain.entity.TapType
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class CsvTapsReaderTest extends Specification {
 
@@ -30,15 +31,24 @@ class CsvTapsReaderTest extends Specification {
         assert taps.isEmpty()
     }
 
-    def "csvTapsReader throws Exception if the given list is invalid"() {
+    @Unroll
+    def "csvTapsReader throws TapDetailsFormatException if the given list does not invalid"() {
         given:
-        csvReader.readCsvFile(_) >> [[""]]
+        csvReader.readCsvFile(_) >> [tapDetails]
 
         when:
         csvTapsReader.getTaps()
 
         then:
-        thrown(IllegalArgumentException)
+        thrown(TapDetailsFormatException)
+
+        where:
+        tapDetails                                                                               | _
+        [""]                                                                                     | _
+        ["1kjh", "22-01-2023 13:00:00 ", "ON", "Stop1", "Company1", "Bus37", "5500550055005500"] | _
+        ["1", "22-01-2023 13:00 ", "ON", "Stop1", "Company1", "Bus37", "5500550055005500"]       | _
+        ["1", "22-01-2023 13:00:00 ", "OON", "Stop1", "Company1", "Bus37", "5500550055005500"]   | _
+        ["1", "22-01-2023 13:00:00 ", "ON", "Company1", "Bus37", "5500550055005500"]             | _
     }
 
     def "csvTapsReader successfully creates list of taps from the given raw list"() {
