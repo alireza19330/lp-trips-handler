@@ -62,9 +62,9 @@ class CsvTapsReaderTest extends Specification {
         noExceptionThrown()
 
         and:
-        taps.size() == 1
-        taps[0].id == 1
-        taps[0].tapType == TapType.ON
+        assert taps.size() == 1
+        assert taps[0].id == 1
+        assert taps[0].tapType == TapType.ON
     }
 
 
