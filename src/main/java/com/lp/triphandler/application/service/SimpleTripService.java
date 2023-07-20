@@ -1,36 +1,25 @@
 package com.lp.triphandler.application.service;
 
+import com.lp.triphandler.application.config.RatesConfig;
 import com.lp.triphandler.domain.entity.Tap;
 import com.lp.triphandler.domain.entity.TapType;
 import com.lp.triphandler.domain.entity.Trip;
 import com.lp.triphandler.domain.entity.TripStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SimpleTripService implements TripService {
 
-    private final Map<String, Map<String, Float>> charges = new HashMap<>();
-
-    // todo move to config
-    public SimpleTripService() {
-        charges.put("Stop1", new HashMap<>());
-        charges.put("Stop2", new HashMap<>());
-        charges.put("Stop3", new HashMap<>());
-
-        charges.get("Stop1").put("Stop2", 3.25F);
-        charges.get("Stop1").put("Stop3", 7.30F);
-
-        charges.get("Stop2").put("Stop1", 3.25F);
-        charges.get("Stop2").put("Stop3", 5.50F);
-
-        charges.get("Stop3").put("Stop1", 7.30F);
-        charges.get("Stop3").put("Stop2", 5.50F);
-    }
+    private final RatesConfig ratesConfig;
 
     /**
      * @param taps
@@ -84,14 +73,14 @@ public class SimpleTripService implements TripService {
 
     private float getCharge(Tap currentTap, Tap nextTap, TripStatus status) {
         return switch (status) {
-            case COMPLETED -> charges.get(currentTap.getStopId()).get(nextTap.getStopId());
+            case COMPLETED -> ratesConfig.getRates().get(currentTap.getStopId()).get(nextTap.getStopId());
             case CANCELED -> 0;
             case INCOMPLETE -> calculateMaxCharge(currentTap);
         };
     }
 
     private float calculateMaxCharge(Tap currentTap) {
-        return charges.get(currentTap.getStopId()).values().stream().reduce(Float.MIN_VALUE, Float::max);
+        return ratesConfig.getRates().get(currentTap.getStopId()).values().stream().reduce(Float.MIN_VALUE, Float::max);
     }
 
     private String getToStopId(Tap currentTap, Tap nextTap, TripStatus status) {
