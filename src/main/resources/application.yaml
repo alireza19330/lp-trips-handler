@@ -1,0 +1,13 @@
+application:
+  rates:
+    Stop1:
+      Stop2: 3.25
+      Stop3: 7.30
+    Stop2:
+      Stop1: 3.25
+      Stop3: 5.50
+    Stop3:
+      Stop1: 7.30
+      Stop2: 5.50
+  input: "taps.csv"
+  output: "trips.csv"
