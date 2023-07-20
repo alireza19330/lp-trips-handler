@@ -1,5 +1,6 @@
 package com.lp.triphandler.application.service;
 
+import com.lp.triphandler.application.config.FilesPathConfig;
 import com.lp.triphandler.application.exception.TapDetailsFormatException;
 import com.lp.triphandler.application.util.CsvReader;
 import com.lp.triphandler.domain.entity.Tap;
@@ -19,6 +20,7 @@ public class CsvTapsReader implements TapsReader {
 
     private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private final CsvReader csvReader;
+    private final FilesPathConfig filesPathConfig;
 
 
     /***
@@ -27,7 +29,7 @@ public class CsvTapsReader implements TapsReader {
      */
     @Override
     public List<Tap> getTaps() {
-        return csvReader.readCsvFile("taps.csv").stream()
+        return csvReader.readCsvFile(filesPathConfig.getInput()).stream()
                 .map(line -> toTap(line))
                 .collect(Collectors.toList());
     }
