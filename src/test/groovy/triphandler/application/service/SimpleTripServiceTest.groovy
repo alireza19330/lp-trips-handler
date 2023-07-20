@@ -22,10 +22,12 @@ class SimpleTripServiceTest extends Specification {
         tripService = new SimpleTripService()
     }
 
-    def "it creates a completed trip from one tap on and one tap off"() {
+    def "it creates two completed trips from with same cost in either direction between two stops"() {
         given:
         def taps = [createTap(1, createLocalDateTime(13, 10, 30), TapType.ON, "Stop1", "Company1", "Bus37", "5500550055005500"),
-                    createTap(1, createLocalDateTime(13, 10, 45), TapType.OFF, "Stop2", "Company1", "Bus37", "5500550055005500")]
+                    createTap(2, createLocalDateTime(13, 10, 45), TapType.OFF, "Stop2", "Company1", "Bus37", "5500550055005500"),
+                    createTap(3, createLocalDateTime(13, 10, 30), TapType.ON, "Stop2", "Company1", "Bus37", "7700550055005500"),
+                    createTap(4, createLocalDateTime(13, 10, 45), TapType.OFF, "Stop1", "Company1", "Bus37", "7700550055005500")]
 
         when:
         def trips = tripService.toTrips(taps)
@@ -35,11 +37,17 @@ class SimpleTripServiceTest extends Specification {
 
         and: "a completed trip is created"
         assert trips
-        assert trips.size() == 1
+        assert trips.size() == 2
+
         assert trips[0].status == TripStatus.COMPLETED
         assert trips[0].started == taps[0].dateTime
         assert trips[0].finished == taps[1].dateTime
         assert trips[0].chargeAmount == costBetweenOneAndTwo
+
+        assert trips[1].status == TripStatus.COMPLETED
+        assert trips[1].started == taps[2].dateTime
+        assert trips[1].finished == taps[3].dateTime
+        assert trips[1].chargeAmount == costBetweenOneAndTwo
     }
 
     def "it creates one incomplete and one completed trip"() {
