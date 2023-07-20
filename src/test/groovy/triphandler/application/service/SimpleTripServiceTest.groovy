@@ -14,6 +14,10 @@ class SimpleTripServiceTest extends Specification {
 
     private TripService tripService
 
+    private final static float costBetweenOneAndTwo = 3.25
+    private final static float costBetweenTwoAndThree = 5.50
+    private final static float costBetweenOneAndThree = 7.30
+
     def setup() {
         tripService = new SimpleTripService()
     }
@@ -35,6 +39,7 @@ class SimpleTripServiceTest extends Specification {
         assert trips[0].status == TripStatus.COMPLETED
         assert trips[0].started == taps[0].dateTime
         assert trips[0].finished == taps[1].dateTime
+        assert trips[0].chargeAmount == costBetweenOneAndTwo
     }
 
     def "it creates one incomplete and one completed trip"() {
@@ -59,11 +64,15 @@ class SimpleTripServiceTest extends Specification {
         assert incompleteTrip.companyId == taps[0].companyId
         assert incompleteTrip.pan == taps[0].pan
 
+        and: "the charge amount should be the maximum"
+        assert incompleteTrip.chargeAmount == costBetweenOneAndThree
+
         and: "a complete trip is created"
         Trip completeTrip = trips.stream().find { it.status == TripStatus.COMPLETED }
         assert completeTrip
         assert completeTrip.fromStopId == taps[1].stopId
         assert completeTrip.toStopId == taps[2].stopId
+        assert completeTrip.chargeAmount == costBetweenTwoAndThree
     }
 
     def "it creates one canceled trip"() {
@@ -86,6 +95,7 @@ class SimpleTripServiceTest extends Specification {
         assert trips[0].fromStopId == taps[0].stopId
         assert trips[0].companyId == taps[0].companyId
         assert trips[0].pan == taps[0].pan
+        assert trips[0].chargeAmount == 0
     }
 
     private Tap createTap(id, dateTime, type, stopId, companyId, busId, pan) {
