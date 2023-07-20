@@ -27,14 +27,14 @@ public class CsvTapsReader implements TapsReader {
      */
     @Override
     public List<Tap> getTaps() {
-        return csvReader.readCsvFile("path-to-csv-file").stream()
+        return csvReader.readCsvFile("taps.csv").stream()
                 .map(line -> toTap(line))
                 .collect(Collectors.toList());
     }
 
     private Tap toTap(List<String> tapDetails) {
         if (Objects.isNull(tapDetails) || tapDetails.size() != 7) {
-            throw new TapDetailsFormatException();
+            throw new TapDetailsFormatException("Invalid number of columns in csv");
         }
 
         try {
@@ -47,7 +47,7 @@ public class CsvTapsReader implements TapsReader {
             String pan = tapDetails.get(6);
             return new Tap(id, dateTime, tapType, stopId, companyId, busId, pan);
         } catch (Exception e) {
-            throw new TapDetailsFormatException();
+            throw new TapDetailsFormatException(e.getMessage());
         }
     }
 }
